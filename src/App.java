@@ -5,19 +5,14 @@ public class App {
 
         public static void main(String[] args) {
 
-                Scanner scanner = new Scanner(System.in);
-                ArrayList<Equipo> equipos = new ArrayList<>();
-                ArrayList<SolicitudMantenimiento> solicitudes = new ArrayList<>();
-                ArrayList<OrdenTrabajo> ordenes = new ArrayList<>();
-                ArrayList<Intervencion> intervenciones = new ArrayList<>();
+                try {
+                        ConexionBD.conectar().close();
+                        System.out.println("Conexion con MySQL exitosa.");
+                } catch (Exception e) {
+                        System.out.println("Error de conexion: " + e.getMessage());
+                }
 
-                Usuario tecnico = new Tecnico(
-                                2,
-                                "Carlos",
-                                "Lopez",
-                                "clopez",
-                                "clave123",
-                                true);
+                Scanner scanner = new Scanner(System.in);
 
                 Usuario solicitante = new Solicitante(
                                 1,
@@ -27,23 +22,21 @@ public class App {
                                 "clave123",
                                 true);
 
-                equipos.add(new Equipo(
-                                "EQ-001",
-                                "Bomba centrifuga",
-                                "Bomba de proceso principal",
-                                true));
+                Usuario tecnico = new Tecnico(
+                                2,
+                                "Carlos",
+                                "Lopez",
+                                "clopez",
+                                "clave123",
+                                true);
 
-                equipos.add(new Equipo(
-                                "EQ-002",
-                                "Balanza analitica",
-                                "Equipo de pesaje de precision",
-                                true));
+                ArrayList<Equipo> equipos = EquipoDAO.listarEquipos();
 
-                equipos.add(new Equipo(
-                                "EQ-003",
-                                "Compresor de aire",
-                                "Compresor para linea de produccion",
-                                true));
+                ArrayList<SolicitudMantenimiento> solicitudes = SolicitudDAO.listarSolicitudes(equipos, solicitante);
+
+                ArrayList<OrdenTrabajo> ordenes = OrdenTrabajoDAO.listarOrdenes(solicitudes, tecnico);
+
+                ArrayList<Intervencion> intervenciones = IntervencionDAO.listarIntervenciones(ordenes, tecnico);
 
                 int opcion = -1;
 
@@ -189,17 +182,18 @@ public class App {
                         return;
                 }
 
-                int nuevoId = solicitudes.size() + 1;
-
                 SolicitudMantenimiento solicitud = new SolicitudMantenimiento(
-                                nuevoId,
+                                0,
                                 descripcion,
                                 equipoEncontrado,
                                 solicitante);
 
-                solicitudes.add(solicitud);
-
-                System.out.println("Solicitud registrada correctamente.");
+                if (SolicitudDAO.registrarSolicitud(solicitud)) {
+                        solicitudes.add(solicitud);
+                        System.out.println("Solicitud registrada correctamente en MySQL.");
+                } else {
+                        System.out.println("No se pudo registrar la solicitud.");
+                }
         }
 
         public static void listarSolicitudes(
@@ -267,9 +261,12 @@ public class App {
                                         solicitudEncontrada,
                                         tecnico);
 
-                        ordenes.add(orden);
-
-                        System.out.println("Orden de trabajo generada correctamente.");
+                        if (OrdenTrabajoDAO.registrarOrden(orden)) {
+                                ordenes.add(orden);
+                                System.out.println("Orden de trabajo registrada correctamente en MySQL.");
+                        } else {
+                                System.out.println("No se pudo registrar la orden de trabajo.");
+                        }
 
                 } catch (NumberFormatException e) {
                         System.out.println("El ID de la solicitud debe ser numerico.");
@@ -341,9 +338,12 @@ public class App {
                                         ordenEncontrada,
                                         tecnico);
 
-                        intervenciones.add(intervencion);
-
-                        System.out.println("Intervencion registrada correctamente.");
+                        if (IntervencionDAO.registrarIntervencion(intervencion)) {
+                                intervenciones.add(intervencion);
+                                System.out.println("Intervencion registrada correctamente en MySQL.");
+                        } else {
+                                System.out.println("No se pudo registrar la intervencion.");
+                        }
 
                 } catch (NumberFormatException e) {
                         System.out.println("El numero de OT debe ser numerico.");
@@ -396,11 +396,31 @@ public class App {
                         int opcion = Integer.parseInt(scanner.nextLine());
 
                         if (opcion == 1) {
-                                ordenEncontrada.iniciarEjecucion();
-                                System.out.println("OT actualizada a En ejecucion.");
+
+                                if (OrdenTrabajoEstadoDAO.actualizarEstado(
+                                                ordenEncontrada.getNumero(),
+                                                "En ejecucion")) {
+
+                                        ordenEncontrada.iniciarEjecucion();
+                                        System.out.println("OT actualizada a En ejecucion.");
+
+                                } else {
+                                        System.out.println("No se pudo actualizar la OT.");
+                                }
+
                         } else if (opcion == 2) {
-                                ordenEncontrada.enviarARevision();
-                                System.out.println("OT actualizada a Pendiente de revision.");
+
+                                if (OrdenTrabajoEstadoDAO.actualizarEstado(
+                                                ordenEncontrada.getNumero(),
+                                                "Pendiente de revision")) {
+
+                                        ordenEncontrada.enviarARevision();
+                                        System.out.println("OT actualizada a Pendiente de revision.");
+
+                                } else {
+                                        System.out.println("No se pudo actualizar la OT.");
+                                }
+
                         } else {
                                 System.out.println("Opcion no valida.");
                         }
@@ -440,12 +460,29 @@ public class App {
                         int opcion = Integer.parseInt(scanner.nextLine());
 
                         if (opcion == 1) {
-                                ordenEncontrada.cerrar();
-                                System.out.println("OT cerrada correctamente.");
+
+                                if (OrdenTrabajoEstadoDAO.cerrarOrden(
+                                                ordenEncontrada.getNumero())) {
+
+                                        ordenEncontrada.cerrar();
+                                        System.out.println("OT cerrada correctamente.");
+
+                                } else {
+                                        System.out.println("No se pudo cerrar la OT.");
+                                }
 
                         } else if (opcion == 2) {
-                                ordenEncontrada.reactivar();
-                                System.out.println("OT reactivada correctamente.");
+
+                                if (OrdenTrabajoEstadoDAO.actualizarEstado(
+                                                ordenEncontrada.getNumero(),
+                                                "En ejecucion")) {
+
+                                        ordenEncontrada.reactivar();
+                                        System.out.println("OT reactivada correctamente.");
+
+                                } else {
+                                        System.out.println("No se pudo reactivar la OT.");
+                                }
 
                         } else {
                                 System.out.println("Opcion no valida.");

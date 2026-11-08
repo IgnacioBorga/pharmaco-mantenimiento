@@ -21,6 +21,10 @@ public class SolicitudMantenimiento {
         this.solicitante = solicitante;
     }
 
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
     public int getIdSolicitud() {
         return idSolicitud;
     }
@@ -39,5 +43,17 @@ public class SolicitudMantenimiento {
                         " | Equipo: " + equipo.getTag() +
                         " | Estado: " + estado +
                         " | Descripcion: " + descripcion);
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public Usuario getSolicitante() {
+        return solicitante;
+    }
+
+    public void setIdSolicitud(int idSolicitud) {
+        this.idSolicitud = idSolicitud;
     }
 }

@@ -39,6 +39,10 @@ public class OrdenTrabajo {
                         " | Tecnico: " + tecnico.getNombre() + " " + tecnico.getApellido());
     }
 
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
     public void iniciarEjecucion() {
         this.estado = "En ejecucion";
     }
@@ -53,5 +57,17 @@ public class OrdenTrabajo {
 
     public void reactivar() {
         this.estado = "En ejecucion";
+    }
+
+    public String getPrioridad() {
+        return prioridad;
+    }
+
+    public SolicitudMantenimiento getSolicitud() {
+        return solicitud;
+    }
+
+    public Usuario getTecnico() {
+        return tecnico;
     }
 }

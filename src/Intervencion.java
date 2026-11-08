@@ -30,4 +30,20 @@ public class Intervencion {
                         " | Tareas: " + tareasRealizadas +
                         " | Observaciones: " + observaciones);
     }
+
+    public String getTareasRealizadas() {
+        return tareasRealizadas;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public OrdenTrabajo getOrden() {
+        return orden;
+    }
+
+    public Usuario getTecnico() {
+        return tecnico;
+    }
 }
