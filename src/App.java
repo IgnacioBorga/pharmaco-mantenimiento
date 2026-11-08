@@ -19,7 +19,8 @@ public class App {
                                 "Juan",
                                 "Perez",
                                 "jperez",
-                                "clave123",
+                                "clave123", // credenciales ficticias utilizadas únicamente para demostrar POO en el
+                                            // prototipo. La versión final aplicará protección de contraseñas
                                 true);
 
                 Usuario tecnico = new Tecnico(
@@ -27,7 +28,8 @@ public class App {
                                 "Carlos",
                                 "Lopez",
                                 "clopez",
-                                "clave123",
+                                "clave123", // credenciales ficticias utilizadas únicamente para demostrar POO en el
+                                            // prototipo. La versión final aplicará protección de contraseñas
                                 true);
 
                 ArrayList<Equipo> equipos = EquipoDAO.listarEquipos();
