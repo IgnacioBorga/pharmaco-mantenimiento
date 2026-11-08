@@ -1,3 +1,5 @@
+package modelo;
+
 import java.time.LocalDateTime;
 
 public class OrdenTrabajo {
@@ -69,5 +71,9 @@ public class OrdenTrabajo {
 
     public Usuario getTecnico() {
         return tecnico;
+    }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
     }
 }

@@ -1,8 +1,16 @@
+package persistencia;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import modelo.OrdenTrabajo;
+import modelo.SolicitudMantenimiento;
+import modelo.Usuario;
+
+import java.sql.Statement;
 
 public class OrdenTrabajoDAO {
 
@@ -16,7 +24,9 @@ public class OrdenTrabajoDAO {
 
         try (
                 Connection conexion = ConexionBD.conectar();
-                PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+                PreparedStatement sentencia = conexion.prepareStatement(
+                        sql,
+                        Statement.RETURN_GENERATED_KEYS)) {
 
             sentencia.setString(1, orden.getPrioridad());
             sentencia.setString(2, orden.getEstado());
@@ -24,10 +34,18 @@ public class OrdenTrabajoDAO {
             sentencia.setInt(4, orden.getTecnico().getIdUsuario());
 
             sentencia.executeUpdate();
+
+            try (ResultSet claves = sentencia.getGeneratedKeys()) {
+                if (claves.next()) {
+                    orden.setNumero(claves.getInt(1));
+                }
+            }
+
             return true;
 
         } catch (SQLException e) {
-            System.out.println("Error al registrar OT: " + e.getMessage());
+            System.out.println(
+                    "Error al registrar OT: " + e.getMessage());
             return false;
         }
     }

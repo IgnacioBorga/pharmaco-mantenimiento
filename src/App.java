@@ -1,6 +1,21 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import modelo.Usuario;
+import persistencia.ConexionBD;
+import persistencia.EquipoDAO;
+import persistencia.IntervencionDAO;
+import persistencia.OrdenTrabajoDAO;
+import persistencia.OrdenTrabajoEstadoDAO;
+import persistencia.SolicitudDAO;
+import modelo.Solicitante;
+import modelo.Tecnico;
+import modelo.Coordinador;
+import modelo.Equipo;
+import modelo.SolicitudMantenimiento;
+import modelo.OrdenTrabajo;
+import modelo.Intervencion;
+
 public class App {
 
         public static void main(String[] args) {
@@ -244,34 +259,53 @@ public class App {
                                 return;
                         }
 
-                        System.out.print("Ingrese la prioridad (Alta, Media o Baja): ");
-                        String prioridad = scanner.nextLine();
+                        String[] prioridades = { "Alta", "Media", "Baja" };
 
-                        if (!prioridad.equalsIgnoreCase("Alta")
-                                        && !prioridad.equalsIgnoreCase("Media")
-                                        && !prioridad.equalsIgnoreCase("Baja")) {
+                        System.out.println("Prioridades disponibles:");
 
+                        for (int i = 0; i < prioridades.length; i++) {
+                                System.out.println((i + 1) + ". " + prioridades[i]);
+                        }
+
+                        System.out.print("Seleccione una prioridad: ");
+
+                        int opcionPrioridad = Integer.parseInt(scanner.nextLine());
+
+                        if (opcionPrioridad < 1 || opcionPrioridad > prioridades.length) {
                                 System.out.println("Prioridad no valida.");
                                 return;
                         }
 
-                        int nuevoNumero = ordenes.size() + 1;
+                        String prioridad = prioridades[opcionPrioridad - 1];
 
                         OrdenTrabajo orden = new OrdenTrabajo(
-                                        nuevoNumero,
+                                        0,
                                         prioridad,
                                         solicitudEncontrada,
                                         tecnico);
 
                         if (OrdenTrabajoDAO.registrarOrden(orden)) {
+
+                                if (SolicitudDAO.actualizarEstado(
+                                                solicitudEncontrada.getIdSolicitud(),
+                                                "Aceptada")) {
+
+                                        solicitudEncontrada.setEstado("Aceptada");
+                                }
+
                                 ordenes.add(orden);
-                                System.out.println("Orden de trabajo registrada correctamente en MySQL.");
+
+                                System.out.println(
+                                                "Orden de trabajo registrada correctamente en MySQL.");
+
                         } else {
-                                System.out.println("No se pudo registrar la orden de trabajo.");
+                                System.out.println(
+                                                "No se pudo registrar la orden de trabajo.");
                         }
 
                 } catch (NumberFormatException e) {
-                        System.out.println("El ID de la solicitud debe ser numerico.");
+                        System.out.println(
+                                        "Debe ingresar valores numericos.");
                 }
         }
 

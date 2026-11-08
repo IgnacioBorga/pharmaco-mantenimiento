@@ -1,3 +1,5 @@
+package modelo;
+
 public class Solicitante extends Usuario {
 
     public Solicitante(int idUsuario, String nombre, String apellido,

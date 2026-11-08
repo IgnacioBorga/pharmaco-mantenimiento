@@ -1,12 +1,14 @@
-public class Coordinador extends Usuario {
+package modelo;
 
-    public Coordinador(int idUsuario, String nombre, String apellido,
+public class Tecnico extends Usuario {
+
+    public Tecnico(int idUsuario, String nombre, String apellido,
             String nombreDeUsuario, String contrasena, boolean activo) {
         super(idUsuario, nombre, apellido, nombreDeUsuario, contrasena, activo);
     }
 
     @Override
     public void mostrarRol() {
-        System.out.println("Rol: Coordinador de mantenimiento");
+        System.out.println("Rol: Tecnico de mantenimiento");
     }
 }

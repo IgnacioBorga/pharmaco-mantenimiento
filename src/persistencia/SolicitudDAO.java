@@ -1,9 +1,15 @@
+package persistencia;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+
+import modelo.Equipo;
+import modelo.SolicitudMantenimiento;
+import modelo.Usuario;
 
 public class SolicitudDAO {
 
@@ -90,5 +96,29 @@ public class SolicitudDAO {
         }
 
         return solicitudes;
+    }
+
+    public static boolean actualizarEstado(int idSolicitud, String estado) {
+
+        String sql = """
+                UPDATE solicitud_mantenimiento
+                SET estado = ?
+                WHERE id_solicitud = ?
+                """;
+
+        try (
+                Connection conexion = ConexionBD.conectar();
+                PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+
+            sentencia.setString(1, estado);
+            sentencia.setInt(2, idSolicitud);
+
+            return sentencia.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println(
+                    "Error al actualizar solicitud: " + e.getMessage());
+            return false;
+        }
     }
 }
