@@ -259,6 +259,17 @@ public class App {
                                 return;
                         }
 
+                        // Evita generar más de una OT para la misma solicitud
+                        for (OrdenTrabajo ordenExistente : ordenes) {
+                                if (ordenExistente.getSolicitud().getIdSolicitud() == solicitudEncontrada
+                                                .getIdSolicitud()) {
+
+                                        System.out.println(
+                                                        "La solicitud seleccionada ya posee una orden de trabajo.");
+                                        return;
+                                }
+                        }
+                        // Arreglo con las prioridades permitidas para una orden de trabajo
                         String[] prioridades = { "Alta", "Media", "Baja" };
 
                         System.out.println("Prioridades disponibles:");
@@ -335,6 +346,10 @@ public class App {
                         return;
                 }
 
+                System.out.println(
+                                "Usuario actual: " + tecnico.getNombre()
+                                                + " - Rol: Tecnico");
+
                 System.out.print("Ingrese el numero de OT: ");
 
                 try {
@@ -351,6 +366,12 @@ public class App {
 
                         if (ordenEncontrada == null) {
                                 System.out.println("Orden de trabajo no encontrada.");
+                                return;
+                        }
+
+                        if (!ordenEncontrada.getEstado().equalsIgnoreCase("En ejecución")) {
+                                System.out.println(
+                                                "Solo se pueden registrar intervenciones en una OT en ejecución.");
                                 return;
                         }
 
@@ -406,13 +427,99 @@ public class App {
                         Scanner scanner,
                         ArrayList<OrdenTrabajo> ordenes) {
 
+                if (ordenes.isEmpty()) {
+                        System.out.println("No hay ordenes de trabajo registradas.");
+                        return;
+                }
+
+                System.out.print("Ingrese el numero de la OT: ");
+
+                try {
+                        int numeroOrden = Integer.parseInt(scanner.nextLine());
+
+                        OrdenTrabajo ordenEncontrada = null;
+
+                        for (OrdenTrabajo orden : ordenes) {
+                                if (orden.getNumero() == numeroOrden) {
+                                        ordenEncontrada = orden;
+                                        break;
+                                }
+                        }
+
+                        if (ordenEncontrada == null) {
+                                System.out.println("Orden de trabajo no encontrada.");
+                                return;
+                        }
+
+                        System.out.println(
+                                        "Estado actual: " + ordenEncontrada.getEstado());
+
+                        System.out.println("Seleccione el nuevo estado:");
+                        System.out.println("1. En ejecución");
+                        System.out.println("2. Pendiente de revisión");
+
+                        int opcionEstado = Integer.parseInt(scanner.nextLine());
+
+                        String nuevoEstado;
+
+                        switch (opcionEstado) {
+                                case 1:
+                                        nuevoEstado = "En ejecución";
+                                        break;
+
+                                case 2:
+                                        nuevoEstado = "Pendiente de revisión";
+                                        break;
+
+                                default:
+                                        System.out.println("Opcion no valida.");
+                                        return;
+                        }
+
+                        // Valida que la transición respete el flujo definido
+                        if (!ordenEncontrada.puedeCambiarA(nuevoEstado)) {
+
+                                System.out.println(
+                                                "Transicion de estado no permitida: "
+                                                                + ordenEncontrada.getEstado()
+                                                                + " -> "
+                                                                + nuevoEstado);
+
+                                return;
+                        }
+
+                        if (OrdenTrabajoEstadoDAO.actualizarEstado(
+                                        numeroOrden,
+                                        nuevoEstado)) {
+
+                                // Mantiene sincronizado el objeto Java con MySQL
+                                ordenEncontrada.setEstado(nuevoEstado);
+
+                                System.out.println(
+                                                "Estado de la OT actualizado correctamente.");
+
+                        } else {
+                                System.out.println(
+                                                "No se pudo actualizar el estado de la OT.");
+                        }
+
+                } catch (NumberFormatException e) {
+                        System.out.println(
+                                        "Debe ingresar un valor numerico.");
+                }
+        }
+
+        public static void revisarOrden(
+                        Scanner scanner,
+                        ArrayList<OrdenTrabajo> ordenes) {
+                System.out.println(
+                                "Operacion realizada por el rol Coordinador.");
                 System.out.print("Ingrese el numero de OT: ");
 
                 try {
                         int numero = Integer.parseInt(scanner.nextLine());
 
                         OrdenTrabajo ordenEncontrada = null;
-
                         for (OrdenTrabajo orden : ordenes) {
                                 if (orden.getNumero() == numero) {
                                         ordenEncontrada = orden;
@@ -425,67 +532,11 @@ public class App {
                                 return;
                         }
 
-                        System.out.println("1. Pasar a En ejecucion");
-                        System.out.println("2. Pasar a Pendiente de revision");
-                        System.out.print("Seleccione una opcion: ");
+                        if (!ordenEncontrada.getEstado().equals("Pendiente de revisión")
+                                        && !ordenEncontrada.getEstado().equals("Cerrada")) {
 
-                        int opcion = Integer.parseInt(scanner.nextLine());
-
-                        if (opcion == 1) {
-
-                                if (OrdenTrabajoEstadoDAO.actualizarEstado(
-                                                ordenEncontrada.getNumero(),
-                                                "En ejecucion")) {
-
-                                        ordenEncontrada.iniciarEjecucion();
-                                        System.out.println("OT actualizada a En ejecucion.");
-
-                                } else {
-                                        System.out.println("No se pudo actualizar la OT.");
-                                }
-
-                        } else if (opcion == 2) {
-
-                                if (OrdenTrabajoEstadoDAO.actualizarEstado(
-                                                ordenEncontrada.getNumero(),
-                                                "Pendiente de revision")) {
-
-                                        ordenEncontrada.enviarARevision();
-                                        System.out.println("OT actualizada a Pendiente de revision.");
-
-                                } else {
-                                        System.out.println("No se pudo actualizar la OT.");
-                                }
-
-                        } else {
-                                System.out.println("Opcion no valida.");
-                        }
-
-                } catch (NumberFormatException e) {
-                        System.out.println("Debe ingresar valores numericos.");
-                }
-        }
-
-        public static void revisarOrden(
-                        Scanner scanner,
-                        ArrayList<OrdenTrabajo> ordenes) {
-
-                System.out.print("Ingrese el numero de OT: ");
-
-                try {
-                        int numero = Integer.parseInt(scanner.nextLine());
-
-                        OrdenTrabajo ordenEncontrada = null;
-
-                        for (OrdenTrabajo orden : ordenes) {
-                                if (orden.getNumero() == numero) {
-                                        ordenEncontrada = orden;
-                                        break;
-                                }
-                        }
-
-                        if (ordenEncontrada == null) {
-                                System.out.println("Orden no encontrada.");
+                                System.out.println(
+                                                "La OT debe estar Pendiente de revisión o cerrada para ser revisada.");
                                 return;
                         }
 
@@ -511,7 +562,7 @@ public class App {
 
                                 if (OrdenTrabajoEstadoDAO.actualizarEstado(
                                                 ordenEncontrada.getNumero(),
-                                                "En ejecucion")) {
+                                                "En ejecución")) {
 
                                         ordenEncontrada.reactivar();
                                         System.out.println("OT reactivada correctamente.");

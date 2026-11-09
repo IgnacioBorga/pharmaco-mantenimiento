@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Gestiona la conexión entre la aplicación Java y la base de datos MySQL.
+ * Las credenciales se obtienen desde variables de entorno.
+ */
 public class ConexionBD {
 
     private static final String URL = "jdbc:mysql://localhost:3306/pharmaco_mantenimiento";

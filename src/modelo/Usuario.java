@@ -1,5 +1,9 @@
 package modelo;
 
+/**
+ * Clase abstracta que representa a los usuarios del sistema.
+ * Define atributos y comportamientos comunes para los distintos roles.
+ */
 public abstract class Usuario {
 
     private int idUsuario;

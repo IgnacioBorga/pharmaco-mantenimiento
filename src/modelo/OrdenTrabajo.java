@@ -76,4 +76,31 @@ public class OrdenTrabajo {
     public void setNumero(int numero) {
         this.numero = numero;
     }
+
+    // Valida que el cambio de estado respete el flujo definido para una OT
+    public boolean puedeCambiarA(String nuevoEstado) {
+
+        if (estado.equals("Asignada")
+                && nuevoEstado.equals("En ejecución")) {
+            return true;
+        }
+
+        if (estado.equals("En ejecución")
+                && nuevoEstado.equals("Pendiente de revisión")) {
+            return true;
+        }
+
+        if (estado.equals("Pendiente de revisión")
+                && nuevoEstado.equals("Cerrada")) {
+            return true;
+        }
+
+        if (estado.equals("Pendiente de revisión")
+                && nuevoEstado.equals("En ejecución")) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

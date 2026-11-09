@@ -12,6 +12,10 @@ import modelo.Usuario;
 
 import java.sql.Statement;
 
+/**
+ * Gestiona las operaciones de persistencia
+ * relacionadas con las órdenes de trabajo.
+ */
 public class OrdenTrabajoDAO {
 
     public static boolean registrarOrden(OrdenTrabajo orden) {
